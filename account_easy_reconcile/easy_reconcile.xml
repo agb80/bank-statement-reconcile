@@ -26,17 +26,16 @@
                         <field name="company_id" groups="base.group_multi_company"/>
                     </group>
                     <group>
-
-                            <group>
-                                <field name="unreconciled_count"/>
-                                <button icon="STOCK_JUMP_TO" name="open_unreconcile"
-                                        string="Go to unreconciled items" type="object"/>
-                            </group>
-                            <group>
-                                <field name="reconciled_partial_count"/>
-                                <button icon="STOCK_JUMP_TO" name="open_partial_reconcile"
-                                        string="Go to partial reconciled items" type="object"/>
-                            </group>
+                        <group>
+                            <field name="unreconciled_count"/>
+                            <button icon="STOCK_JUMP_TO" name="open_unreconcile"
+                                    string="Go to unreconciled items" type="object"/>
+                        </group>
+                        <group>
+                            <field name="reconciled_partial_count"/>
+                            <button icon="STOCK_JUMP_TO" name="open_partial_reconcile"
+                                    string="Go to partial reconciled items" type="object"/>
+                        </group>
 
                     </group>
                     <notebook colspan="4">
