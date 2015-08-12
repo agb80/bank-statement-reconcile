@@ -184,7 +184,9 @@ class AccountEasyReconcile(orm.Model):
 
     _columns = {
         'name': fields.char('Name', required=True),
-        'account': fields.many2many('account.account','reconcile_account_tbl','reconcile_id','account_id','Accounts to Reconcile',domain=[('reconcile','=',1)]),
+        'account': fields.many2many('account.account','reconcile_account_tbl',
+            'reconcile_id','account_id',
+            'Accounts to Reconcile',domain=[('reconcile','=',1)]),
         'reconcile_method': fields.one2many(
             'account.easy.reconcile.method', 'task_id', 'Method'),
         'unreconciled_count': fields.function(
@@ -208,7 +210,8 @@ class AccountEasyReconcile(orm.Model):
         'company_id': fields.many2one('res.company', 'Company'),
     }
 
-    def _prepare_run_transient(self, cr, uid, rec_method, account_id, context=None):
+    def _prepare_run_transient(self, cr, uid, rec_method, account_id, 
+        context=None):
         return {'account_id': account_id.id,
                 'write_off': rec_method.write_off,
                 'account_lost_id': (rec_method.account_lost_id and
@@ -250,7 +253,8 @@ class AccountEasyReconcile(orm.Model):
         for rec in self.browse(cr, uid, ids, context=context):
             for account_id in rec.account:
                 ctx = context.copy()
-                ctx['commit_every'] = (account_id.company_id.reconciliation_commit_every)
+                ctx['commit_every'] = (
+                    account_id.company_id.reconciliation_commit_every)
                 if ctx['commit_every']:
                     new_cr = pooler.get_db(cr.dbname).cursor()
                 else:
@@ -336,8 +340,6 @@ class AccountEasyReconcile(orm.Model):
             "You can only open entries from one profile at a time"
         obj_move_line = self.pool.get('account.move.line')
         for task in self.browse(cr, uid, ids, context=context):
-            print "=>task.account", task.account
-            print "=>[x.id for x in task.account]", [x.id for x in task.account]
             line_ids = obj_move_line.search(
                 cr, uid,
                 [('account_id', 'in', [x.id for x in task.account]),

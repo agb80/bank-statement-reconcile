@@ -21,13 +21,12 @@
                 </header>
                 <sheet>
                     <separator colspan="4" string="Profile Information" />
+                    <group col="4">
+                        <field name="name" select="1" col="2"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
                     <group>
-                        <group>
-                            <field name="name" select="1"/>
-                            <field name="account"/>
-                            <field name="company_id" groups="base.group_multi_company"/>
-                        </group>
-                        <group>
+
                             <group>
                                 <field name="unreconciled_count"/>
                                 <button icon="STOCK_JUMP_TO" name="open_unreconcile"
@@ -38,11 +37,15 @@
                                 <button icon="STOCK_JUMP_TO" name="open_partial_reconcile"
                                         string="Go to partial reconciled items" type="object"/>
                             </group>
-                        </group>
+
                     </group>
                     <notebook colspan="4">
+                        <page name="accounts" string="Accounts">
+                            <separator colspan="4" string="Reconcile Accounts"/>
+                            <field name="account" required="0"/>
+                        </page>
                         <page name="methods" string="Configuration">
-                            <field name="reconcile_method" colspan = "4" nolabel="1"/>
+                            <field name="reconcile_method" colspan="4" nolabel="1"/>
                         </page>
                         <page name="history" string="History">
                             <field name="history_ids" nolabel="1">
