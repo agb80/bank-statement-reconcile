@@ -210,7 +210,7 @@ class AccountEasyReconcile(orm.Model):
         'company_id': fields.many2one('res.company', 'Company'),
     }
 
-    def _prepare_run_transient(self, cr, uid, rec_method, account_id, 
+    def _prepare_run_transient(self, cr, uid, rec_method, account_id,
         context=None):
         return {'account_id': account_id.id,
                 'write_off': rec_method.write_off,
@@ -249,19 +249,19 @@ class AccountEasyReconcile(orm.Model):
         # does not.
         if context is None:
             context = {}
-
+        all_ml_rec_ids = []
+        all_ml_partial_ids = []
         for rec in self.browse(cr, uid, ids, context=context):
-            for account_id in rec.account:
-                ctx = context.copy()
-                ctx['commit_every'] = (
-                    account_id.company_id.reconciliation_commit_every)
-                if ctx['commit_every']:
-                    new_cr = pooler.get_db(cr.dbname).cursor()
-                else:
-                    new_cr = cr
-                try:
-                    all_ml_rec_ids = []
-                    all_ml_partial_ids = []
+            try:
+
+                for account_id in rec.account:
+                    ctx = context.copy()
+                    ctx['commit_every'] = (
+                        account_id.company_id.reconciliation_commit_every)
+                    if ctx['commit_every']:
+                        new_cr = pooler.get_db(cr.dbname).cursor()
+                    else:
+                        new_cr = cr
 
                     for method in rec.reconcile_method:
                         rec_model = self.pool.get(method.name)
@@ -270,7 +270,6 @@ class AccountEasyReconcile(orm.Model):
                             self._prepare_run_transient(
                                 new_cr, uid, method, account_id, context=context),
                             context=context)
-
                         ml_rec_ids, ml_partial_ids = rec_model.automatic_reconcile(
                             new_cr, uid, auto_rec_id, context=ctx)
 
@@ -282,33 +281,33 @@ class AccountEasyReconcile(orm.Model):
                     partial_ids = find_reconcile_ids(
                         new_cr, 'reconcile_partial_id', all_ml_partial_ids)
 
-                    self.pool.get('easy.reconcile.history').create(new_cr, uid, {
-                        'easy_reconcile_id': rec.id,
-                        'date': fields.datetime.now(),
-                        'reconcile_ids': [(4, rid) for rid in reconcile_ids],
-                        'reconcile_partial_ids': [(4, rid) for rid in partial_ids],
-                    }, context=context)
-                except Exception as e:
-                    # In case of error, we log it in the mail thread, log the
-                    # stack trace and create an empty history line; otherwise,
-                    # the cron will just loop on this reconcile task.
-                    _logger.exception(
-                        "The reconcile task %s had an exception: %s",
-                        rec.name, ", ".join([str(error) for error in e.args]))
-                    message = "There was an error during reconciliation : %s" \
-                        % ", ".join([str(error) for error in e.args])
-                    self.message_post(cr, uid, rec.id,
-                                      body=message, context=context)
-                    self.pool.get('easy.reconcile.history').create(new_cr, uid, {
-                        'easy_reconcile_id': rec.id,
-                        'date': fields.datetime.now(),
-                        'reconcile_ids': [],
-                        'reconcile_partial_ids': [],
-                        })
-                finally:
-                    if ctx['commit_every']:
-                        new_cr.commit()
-                        new_cr.close()
+                self.pool.get('easy.reconcile.history').create(new_cr, uid, {
+                'easy_reconcile_id': rec.id,
+                'date': fields.datetime.now(),
+                'reconcile_ids': [(4, rid) for rid in reconcile_ids],
+                'reconcile_partial_ids': [(4, rid) for rid in partial_ids],
+                }, context=context)
+            except Exception as e:
+                # In case of error, we log it in the mail thread, log the
+                # stack trace and create an empty history line; otherwise,
+                # the cron will just loop on this reconcile task.
+                _logger.exception(
+                    "The reconcile task %s had an exception: %s",
+                    rec.name, ", ".join([str(error) for error in e.args]))
+                message = "There was an error during reconciliation : %s" \
+                    % ", ".join([str(error) for error in e.args])
+                self.message_post(cr, uid, rec.id,
+                                  body=message, context=context)
+                self.pool.get('easy.reconcile.history').create(new_cr, uid, {
+                    'easy_reconcile_id': rec.id,
+                    'date': fields.datetime.now(),
+                    'reconcile_ids': [],
+                    'reconcile_partial_ids': [],
+                    })
+            finally:
+                if ctx['commit_every']:
+                    new_cr.commit()
+                    new_cr.close()
         return True
 
     def _no_history(self, cr, uid, rec, context=None):
