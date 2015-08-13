@@ -190,12 +190,6 @@ class EasyReconcileBase(orm.AbstractModel):
                 writeoff_account_id = rec.account_lost_id.id
             period_id = self.pool.get('account.period').find(
                 cr, uid, dt=date, context=context)[0]
-            if period.state == "done":
-                raise orm.except_orm(
-                    _('Error'),
-                    _('You can not write about a \
-                        period closed: %s.') % period.name)
-
             if rec.analytic_account_id:
                 rec_ctx['analytic_id'] = rec.analytic_account_id.id
             ml_obj.reconcile(

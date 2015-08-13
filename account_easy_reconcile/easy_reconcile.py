@@ -293,9 +293,9 @@ class AccountEasyReconcile(orm.Model):
                 # the cron will just loop on this reconcile task.
                 _logger.exception(
                     "The reconcile task %s had an exception: %s",
-                    rec.name, ", ".join([str(error) for error in e.args]))
+                    rec.name, ", ".join([str(error.decode("utf8")) for error in e.args]))
                 message = "There was an error during reconciliation : %s" \
-                    % ", ".join([str(error) for error in e.args])
+                    % ", ".join([str(error.decode("utf8")) for error in e.args])
                 self.message_post(cr, uid, rec.id,
                                   body=message, context=context)
                 self.pool.get('easy.reconcile.history').create(new_cr, uid, {
