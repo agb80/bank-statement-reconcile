@@ -164,7 +164,7 @@ class AccountEasyReconcile(orm.Model):
             res[task.id] = len(obj_move_line.search(cr, uid,
                 [('account_id', 'in', [x.id for x in task.account]),
                  ('reconcile_id', '=', False),
-                 ('reconcile_partial_id', '!=', False)],
+                 ('reconcile_partial_id', '!=', None)],
                 context=context))
         return res
 
