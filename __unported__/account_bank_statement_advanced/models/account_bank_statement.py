@@ -345,11 +345,12 @@ class AccountBankStatementLine(orm.Model):
     'partner_id' = fields.many2one(
         domain=['|', ('parent_id', '=', False), ('is_company', '=', True)])
 
-    @api.one
-    @api.depends('journal_entry_id')
-    def _compute_reconcile_get(self):
+    def _compute_reconcile_get(self, cr, uid, ids, field_name, args, context=None):
+        if context is None: context = {}
+        rec = self.browse(cr, uid, ids, context=context)[0]
+        result = {}
         res = '-'
-        move = self.journal_entry_id
+        move = rec.journal_entry_id
         if move:
             reconciles = filter(lambda x: x.reconcile_id, move.line_id)
             rec_partials = filter(
@@ -361,39 +362,40 @@ class AccountBankStatementLine(orm.Model):
                 res = '%.2f' % rec_total
                 if rec_total != self.amount or rec_partials:
                     res += ' (!)'
-        self.reconcile_get = res
+        result[rec.id] = res
 
-    @api.one
-    @api.depends('journal_entry_id.state')
-    def _compute_move_get(self):
+    def _compute_move_get(self, cr, uid, ids, field_name, args, context=None):
+        if context is None: context = {}
+        rec = self.browse(cr, uid, ids, context=context)[0]
+        result = {}
         res = '-'
-        move = self.journal_entry_id
+        move = rec.journal_entry_id
         if move:
-            field_dict = self.env['account.move'].fields_get(
-                allfields=['state'])
+            field_dict = self.pool.get('account.move').fields_get(
+                cr, uid, ['state'], context=context)
             result_list = field_dict['state']['selection']
             res = filter(lambda x: x[0] == move.state, result_list)[0][1]
         self.move_get = res
 
-    @api.multi
     def action_cancel(self):
         """
         remove the account_id from the line for manual reconciliation
         """
-        for line in self:
+        for line in self.browse(cr, uid, ids, context=context):
             if line.account_id:
                 line.account_id = False
         self.cancel()
         return True
 
-    @api.multi
-    def action_process(self):
+    
+    def action_process(self, cr, uid, ids, context=None):
+        if context is None: context = {}
         """
         TODO:
         add reconciliation/move logic for use in bank.statement.line list view
         """
-        st_line = self[0]
-        ctx = self._context.copy()
+        st_line = self.browse(cr, uid, ids, context=context)[0]
+        ctx = context.copy()
         ctx.update({
             'act_window_from_bank_statement': True,
             'active_id': st_line.id,
@@ -415,17 +417,17 @@ class AccountBankStatementLine(orm.Model):
         act_move['context'] = dict(ctx, wizard_action=pickle.dumps(act_move))
         return act_move
 
-    @api.multi
-    def unlink(self):
-        if self._context.get('block_statement_line_delete', False):
-            raise Warning(
+    def unlink(self, cr, uid, ids, context=None):
+        if context.get('block_statement_line_delete', False):
+            raise orm.except_orm(
                 _("Delete operation not allowed ! "
                   "Please go to the associated bank statement in order to "
                   "delete and/or modify this bank statement line"))
-        return super(AccountBankStatementLine, self).unlink()
+        return super(AccountBankStatementLine, self).unlink(cr, uid, ids, context=context)
 
-    @api.model
-    def create(self, vals):
+    
+    def create(self, cr, uid, vals, context=None):
+        if context is None: context = {}
         """
         This method can be dropped after acceptance by Odoo of
         - PR 8397
@@ -436,21 +438,22 @@ class AccountBankStatementLine(orm.Model):
         """
         # cf. https://github.com/odoo/odoo/pull/8397
         if not vals.get('sequence'):
-            lines = self.search(
+            lines = self.search(cr, uid, 
                 [('statement_id', '=', vals.get('statement_id'))],
                 order='sequence desc', limit=1)
+            lines_brw = self.browse(cr, uid, lines, context=context)
             if lines:
-                seq = lines[0].sequence
+                seq = lines_brw[0].sequence
             else:
                 seq = 0
             vals['sequence'] = seq + 1
         # cf. https://github.com/odoo/odoo/pull/8396
         if not vals.get('name'):
             vals['name'] = '/'
-        return super(AccountBankStatementLine, self).create(vals)
+        return super(AccountBankStatementLine, self).create(cr, uid, vals, context=context)
 
-    @api.model
-    def _needaction_domain_get(self):
-        res = super(AccountBankStatementLine, self)._needaction_domain_get()
+    def _needaction_domain_get(self, cr, uid, vals, context=None):
+        if context is None: context = {}
+        res = super(AccountBankStatementLine, self)._needaction_domain_get(cr, uid, vals, context=context)
         res.append(('amount', '=', True))
         return res

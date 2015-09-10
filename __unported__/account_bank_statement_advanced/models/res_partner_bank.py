@@ -23,10 +23,18 @@
 import logging
 _logger = logging.getLogger(__name__)
 
-from openerp import models, api
+#V8 to v7
+# from openerp import models, api
+
+from openerp.osv import orm, fields
+from openerp.tools.translate import _
 
 
-class ResPartnerBank(models.Model):
+# class ResPartnerBank(models.Model):
+#     _inherit = 'res.partner.bank'
+
+
+class ResPartnerBank(orm.Model):
     _inherit = 'res.partner.bank'
 
     def _acc_number_select(self, operator, number):
@@ -75,19 +83,38 @@ class ResPartnerBank(models.Model):
                     % number
         return select
 
+    # @api.model
+    # def search(self, args, offset=0, limit=None, order=None, count=False):
+    #     #  _logger.warn('%s, search, args=%s', self._name, args)
+    #     for i, arg in enumerate(args):
+    #         if arg[0] == 'acc_number' and \
+    #                 arg[1] in ['=', '=like', '=ilike', 'like', 'ilike']:
+    #             number = arg[2].replace(' ', '').replace('-', '').upper()
+    #             select = self._acc_number_select(arg[1], number)
+    #             self._cr.execute(select)
+    #             res = self._cr.fetchall()
+    #             if res:
+    #                 rpb_ids = [x[0] for x in res]
+    #                 args[i] = ['id', 'in', rpb_ids]
+    #     #  _logger.warn('%s, search, args=%s', self._name, args)
+    #     return super(ResPartnerBank, self).search(
+    #         args, offset, limit, order, count=count)
+
+
+
     @api.model
-    def search(self, args, offset=0, limit=None, order=None, count=False):
+    def search(self, cr, uid, args, offset=0, limit=None, order=None, context=context, count=False):
         #  _logger.warn('%s, search, args=%s', self._name, args)
         for i, arg in enumerate(args):
             if arg[0] == 'acc_number' and \
                     arg[1] in ['=', '=like', '=ilike', 'like', 'ilike']:
                 number = arg[2].replace(' ', '').replace('-', '').upper()
                 select = self._acc_number_select(arg[1], number)
-                self._cr.execute(select)
-                res = self._cr.fetchall()
+                cr.execute(select)
+                res = cr.fetchall()
                 if res:
                     rpb_ids = [x[0] for x in res]
                     args[i] = ['id', 'in', rpb_ids]
         #  _logger.warn('%s, search, args=%s', self._name, args)
-        return super(ResPartnerBank, self).search(
-            args, offset, limit, order, count=count)
+        return super(ResPartnerBank, self).search(cr, uid,
+            args, offset, limit, order, context=context, count=count)

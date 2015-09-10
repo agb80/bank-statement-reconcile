@@ -30,8 +30,9 @@
         'web',
     ],
     'data': [
-        'views/sheet.xml',
+        # 'views/sheet.xml',
     ],
+    'css':['static/src/css/sheet.css'],
     'active': False,
     'installable': True,
     }

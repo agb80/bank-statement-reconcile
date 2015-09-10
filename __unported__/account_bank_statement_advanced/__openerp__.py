@@ -45,4 +45,5 @@
         'wizard/bank_statement_balance_print.xml',
         'report/reports.xml',
         ],
+        'js': ['static/src/js/account_widgets.js'],
 }

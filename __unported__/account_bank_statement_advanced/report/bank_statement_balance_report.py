@@ -24,8 +24,8 @@ from datetime import datetime
 from openerp.osv.fields import datetime as datetime_field
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp.report import report_sxw
-from openerp import models, _
-from openerp.exceptions import Warning
+from openerp import _
+from openerp.osv import orm, fields
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -91,7 +91,15 @@ class bank_statement_balance_report(report_sxw.rml_parse):
             objects, data, ids, report_type=report_type)
 
 
-class report_bankstatementbalance(models.AbstractModel):
+# class report_bankstatementbalance(models.AbstractModel):
+#     _name = 'report.account_bank_statement_advanced.report_statement_balances'
+#     _inherit = 'report.abstract_report'
+#     _template = 'account_bank_statement_advanced.report_statement_balances'
+#     _wrapped_report_class = bank_statement_balance_report
+
+
+
+class report_bankstatementbalance(orm.AbstractModel):
     _name = 'report.account_bank_statement_advanced.report_statement_balances'
     _inherit = 'report.abstract_report'
     _template = 'account_bank_statement_advanced.report_statement_balances'
