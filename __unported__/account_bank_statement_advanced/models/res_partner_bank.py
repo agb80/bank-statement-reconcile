@@ -100,8 +100,6 @@ class ResPartnerBank(orm.Model):
     #     return super(ResPartnerBank, self).search(
     #         args, offset, limit, order, count=count)
 
-
-
     @api.model
     def search(self, cr, uid, args, offset=0, limit=None, order=None, context=context, count=False):
         #  _logger.warn('%s, search, args=%s', self._name, args)
