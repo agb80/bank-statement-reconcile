@@ -32,7 +32,9 @@
     'data': [
         # 'views/sheet.xml',
     ],
-    'css':['static/src/css/sheet.css'],
+    'css':[
+        'static/src/css/sheet.css'
+    ],
     'active': False,
     'installable': True,
     }
