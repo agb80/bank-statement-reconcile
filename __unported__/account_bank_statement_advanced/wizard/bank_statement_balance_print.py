@@ -20,6 +20,7 @@
 #
 ##############################################################################
 
+import time
 from datetime import datetime
 
 from openerp.osv import fields, orm
@@ -31,18 +32,18 @@ class bank_statement_balance_print(orm.TransientModel):
     _description = 'Bank Statement Balances Report'
 
     def _get_journals(self, cr, uid, context=None):
-        return self.pool.get('account.journal').search(cr, uid, 
+        return self.pool.get('account.journal').search(cr, uid,
             [('type', '=', 'bank')]
         )
 
-    _columns = {    
+    _columns = {
         'journal_ids': fields.many2many(
         'account.journal', string='Financial Journal(s)',
         domain=[('type', '=', 'bank')],
         help="Select here the Financial Journal(s) you want to include "
-             "in your Bank Statement Balances Report.")
+             "in your Bank Statement Balances Report."),
         'date_balance': fields.date(
-        string='Date', required=True, default=time.strftime('%Y-%m-%d'))
+        string='Date', required=True, default=time.strftime('%Y-%m-%d')),
     }
     _defaults = {
         'journal_ids': _get_journals,

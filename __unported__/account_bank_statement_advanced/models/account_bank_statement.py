@@ -140,20 +140,20 @@ class AccountBankStatementLineGlobal(orm.Model):
     #         recs = self.browse()
     #     return recs.name_get()
 
-    def name_search(self, cr, user, name, args=None, operator='ilike', 
+    def name_search(self, cr, user, name, args=None, operator='ilike',
         context=None, limit=100):
         args = args or []
         if name:
             recs = self.search(cr, uid, [('code', '=ilike', name)] + args, limit=limit)
             if not recs:
-                recs = self.search(cr, uid, 
+                recs = self.search(cr, uid,
                     [('name', operator, name)] + args, limit=limit)
             if not recs and len(name.split()) >= 2:
                 # Separating code and name for searching
                 # name can contain spaces
                 operand1, operand2 = name.split(' ', 1)
                 recs = self.search(cr, uid, [
-                    ('code', '=like', operand1), 
+                    ('code', '=like', operand1),
                     ('name', operator, operand2)
                 ] + args, limit=limit)
         else:
@@ -172,13 +172,7 @@ class AccountBankStatementLineGlobal(orm.Model):
 class AccountBankStatement(orm.Model):
     _inherit = 'account.bank.statement'
 
-    'fiscalyear_id' = fields.related('period_id','fiscalyear_id',
-        type='many2one', relation='account.fiscalyear', string='Fiscal Year', 
-        store=True, readonly=True)
-    'all_lines_reconciled': fields.boolean(compute='_all_lines_reconciled')
-
-
-    def _all_lines_reconciled(self, cr, uid, ids, fields_name, args, 
+    def _all_lines_reconciled(self, cr, uid, ids, fields_name, args,
             context=None):
         """
         Replacement of this method without inherit.
@@ -189,13 +183,21 @@ class AccountBankStatement(orm.Model):
         """
         res = {}
         all_lines_reconciled = True
-        for rec in self.browse(cr, uid, ids, context=context):        
+        for rec in self.browse(cr, uid, ids, context=context):
             for line in rec.line_ids:
                 if line.amount and not line.journal_entry_id:
                     self.all_lines_reconciled = False
                     break
         res[rec.id] = all_lines_reconciled
         return res
+
+    _columns = {
+    'fiscalyear_id': fields.related('period_id','fiscalyear_id',
+        type='many2one', relation='account.fiscalyear', string='Fiscal Year',
+        store=True, readonly=True),
+    'all_lines_reconciled': fields.function(_all_lines_reconciled,
+        string='All lines reconciled', type='boolean'),
+    }
 
     def init(self, cr):
         cr.execute("""
@@ -286,64 +288,67 @@ class AccountBankStatementLine(orm.Model):
     # partner_id = fields.Many2one(
     #     domain=['|', ('parent_id', '=', False), ('is_company', '=', True)])
 
-    'state': fields.related('statement_id','state', type='relation',
-        string='Statement State', readonly=True, store=True),
-    'val_date': fields.date(
-        string='Value Date',  # nl: valuta datum
-        states={'confirm': [('readonly', True)]})
-    'journal_code': fields.related('statement_id','journal_id','code',
-        type='char', string='Journal', store=True, readonly=True)
-    'globalisation_id': fields.many2one(
-        'account.bank.statement.line.global',
-        string='Globalisation ID',
-        states={'confirm': [('readonly', True)]},
-        help="Code to identify transactions belonging to the same "
-        "globalisation level within a batch payment")
-    'globalisation_amount': fields.related(
-        'globalisation_id','amount', type='float'
-        string='Glob. Amount', readonly=True)
-    'counterparty_name': fields.char(
-        string='Counterparty Name',
-        states={'confirm': [('readonly', True)]})
-    'counterparty_bic': fields.char(
-        string='Counterparty BIC', size=11,
-        states={'confirm': [('readonly', True)]})
-    'counterparty_number': fields.char(
-        string='Counterparty Number',
-        states={'confirm': [('readonly', True)]})
-    'counterparty_currency': fields.char(
-        string='Counterparty Currency', size=3,
-        states={'confirm': [('readonly', True)]})
-    'payment_reference': fields.char(
-        string='Payment Reference', size=35,
-        states={'confirm': [('readonly', True)]},
-        help="Payment Reference. For SEPA (SCT or SDD) transactions, "
-             "the EndToEndReference is recorded in this field.")
-    'creditor_reference_type' = fields.char(
-        # To DO : change field to selection list
-        string='Creditor Reference Type', size=35,
-        states={'confirm': [('readonly', True)]},
-        help="Creditor Reference Type. For SEPA (SCT) transactions, "
-             "the <CdtrRefInf> type is recorded in this field."
-             "\nE.g. 'BBA' for belgian structured communication "
-             "(Code 'SCOR', Issuer 'BBA'")
-    'creditor_reference' = fields.char(
-        'Creditor Reference',
-        size=35,  # cf. pain.001.001.003 type="Max35Text"
-        states={'confirm': [('readonly', True)]},
-        help="Creditor Reference. For SEPA (SCT) transactions, "
-             "the <CdtrRefInf> reference is recorded in this field.")
-    'reconcile_get' = fields.char(
-        string='Reconciled', compute='_compute_reconcile_get', readonly=True)
-    'move_get' = fields.char(
-        string='Move', compute='_compute_move_get', readonly=True)
-    'move_state' = fields.related('journal_entry_id','state', type='selection'
-        string='Move State', , readonly=True)
+    _columns = {
 
-    # update existing fields
-    'date' = fields.date(string='Entry Date')
-    'partner_id' = fields.many2one(
-        domain=['|', ('parent_id', '=', False), ('is_company', '=', True)])
+        'state': fields.related('statement_id','state', type='selection',
+            string='Statement State', readonly=True, store=True),
+        'val_date': fields.date(
+            string='Value Date',  # nl: valuta datum
+            states={'confirm': [('readonly', True)]}),
+        'journal_code': fields.related('statement_id','journal_id','code',
+            type='char', string='Journal', store=True, readonly=True),
+        'globalisation_id': fields.many2one(
+            'account.bank.statement.line.global',
+            string='Globalisation ID',
+            states={'confirm': [('readonly', True)]},
+            help="Code to identify transactions belonging to the same "
+            "globalisation level within a batch payment"),
+        'globalisation_amount': fields.related(
+            'globalisation_id','amount', type='float',
+            string='Glob. Amount', readonly=True),
+        'counterparty_name': fields.char(
+            string='Counterparty Name',
+            states={'confirm': [('readonly', True)]}),
+        'counterparty_bic': fields.char(
+            string='Counterparty BIC', size=11,
+            states={'confirm': [('readonly', True)]}),
+        'counterparty_number': fields.char(
+            string='Counterparty Number',
+            states={'confirm': [('readonly', True)]}),
+        'counterparty_currency': fields.char(
+            string='Counterparty Currency', size=3,
+            states={'confirm': [('readonly', True)]}),
+        'payment_reference': fields.char(
+            string='Payment Reference', size=35,
+            states={'confirm': [('readonly', True)]},
+            help="Payment Reference. For SEPA (SCT or SDD) transactions, "
+                 "the EndToEndReference is recorded in this field."),
+        'creditor_reference_type': fields.char(
+            # To DO : change field to selection list
+            string='Creditor Reference Type', size=35,
+            states={'confirm': [('readonly', True)]},
+            help="Creditor Reference Type. For SEPA (SCT) transactions, "
+                 "the <CdtrRefInf> type is recorded in this field."
+                 "\nE.g. 'BBA' for belgian structured communication "
+                 "(Code 'SCOR', Issuer 'BBA'"),
+        'creditor_reference': fields.char(
+            'Creditor Reference',
+            size=35,  # cf. pain.001.001.003 type="Max35Text"
+            states={'confirm': [('readonly', True)]},
+            help="Creditor Reference. For SEPA (SCT) transactions, "
+                 "the <CdtrRefInf> reference is recorded in this field."),
+        'reconcile_get':fields.char(
+            string='Reconciled', compute='_compute_reconcile_get', readonly=True),
+        'move_get': fields.char(
+            string='Move', compute='_compute_move_get', readonly=True),
+        'move_state': fields.related('journal_entry_id','state',type='selection',
+            string='Move State', readonly=True),
+        # update existing fields
+        'date': fields.date(string='Entry Date'),
+        'partner_id': fields.many2one('res.partner',
+            domain=['|', ('parent_id', '=', False), ('is_company', '=', True)]),
+
+    }
 
     def _compute_reconcile_get(self, cr, uid, ids, field_name, args, context=None):
         if context is None: context = {}
@@ -387,7 +392,7 @@ class AccountBankStatementLine(orm.Model):
         self.cancel()
         return True
 
-    
+
     def action_process(self, cr, uid, ids, context=None):
         if context is None: context = {}
         """
@@ -425,7 +430,7 @@ class AccountBankStatementLine(orm.Model):
                   "delete and/or modify this bank statement line"))
         return super(AccountBankStatementLine, self).unlink(cr, uid, ids, context=context)
 
-    
+
     def create(self, cr, uid, vals, context=None):
         if context is None: context = {}
         """
@@ -438,7 +443,7 @@ class AccountBankStatementLine(orm.Model):
         """
         # cf. https://github.com/odoo/odoo/pull/8397
         if not vals.get('sequence'):
-            lines = self.search(cr, uid, 
+            lines = self.search(cr, uid,
                 [('statement_id', '=', vals.get('statement_id'))],
                 order='sequence desc', limit=1)
             lines_brw = self.browse(cr, uid, lines, context=context)

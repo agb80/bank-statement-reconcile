@@ -1,15 +1,18 @@
-<!-- <?xml version="1.0" encoding="utf-8"?>
-<openerp>
-  <data>
+<!DOCTYPE>
+<html>
+<head>
+    <style type="text/css">
+        ${css}
+    </style>
+</head>
 
-    <template id="report_statement_balances">
-      <t t-call="report.html_container">
-        <t t-set="data_report_margin_top" t-value="20"/>
-        <t t-call="account_bank_statement_advanced.report_layout">
+<!--margion_top : 20-->
+<body>
+    %for o in objects :
           <div class="page">
             <h2>
               <span>Bank Statement Balances Report</span>
-              <span t-esc="date_balance"/>
+              <span>${o.date_balance or ''}</span>
             </h2>
 
             <table class="table table-condensed">
@@ -22,23 +25,26 @@
                 </tr>
               </thead>
               <tbody>
-                <tr t-foreach="lines" t-as="l">
+                %for l in o.lines:
+                <tr>
                   <td>
-                    <span t-esc="l['s_name']"/>
+                    <span>${ l['s_name'] or ''}</span>
                   </td>
                   <td>
-                    <span t-esc="l['s_date']"/>
+                    <span>${ l['s_date'] or ''}</span>
                   </td>
                   <td>
-                    <span t-esc="l['j_code']"/>
+                    <span>${ l['j_code'] or ''} </span>
                   </td>
                   <td class="text-right">
-                    <span t-esc="formatLang(l['s_balance'], monetary=True, currency_obj=l['currency'])"/>
+                    <span> ${ formatLang( l['s_balance']) l['currency'] or ''}</span>
                   </td>
                 </tr>
               </tbody>
+              %endfor
               <tfoot>
-                <tr t-foreach="totals" t-as="t">
+                %for t in o.totals:
+                <tr>
                   <td>
                     &amp;nbsp;
                   </td>
@@ -48,12 +54,12 @@
                   <td>
                     <strong>
                       <span>Total</span>
-                      <span t-esc="len(totals)&gt;1 and (' ' + t['currency'].symbol) or '' "/>:
+                      <span> ${str(len(totals)&gt;1 and + ' ' + t['currency'].symbol) or ''}</span>
                     </strong>
                   </td>
                   <td class="text-right">
                     <strong>
-                      <span t-esc="formatLang(t['total_amount'],monetary=True,currency_obj=t['currency'])"/>
+                      <span>$ ${formatLang(t['total_amount']) currency_obj=t['currency'] or '' }</span>
                     </strong>
                   </td>
                 </tr>
@@ -66,4 +72,3 @@
 
   </data>
 </openerp>
- -->

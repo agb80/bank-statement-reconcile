@@ -1,7 +1,7 @@
-<?xml version="1.0"?>
+<?xml version="1.0" ?>
 <openerp>
-  <data>
-
+<!--   <data> -->
+<!--
     <template id="report_layout">
       <t t-if="o and 'company_id' in o">
         <t t-set="company" t-value="o.company_id"></t>
@@ -31,7 +31,71 @@
         </div>
       </div>
       <t t-raw="0"/>
-    </template>
-    
-  </data>
+    </template> -->
+
+<openerp>
+    <data noupdate="0">
+        <record id="ir_header_webkit_report_balances" model="ir.header_webkit">
+            <field name="footer_html"><![CDATA[<!DOCTYPE><html>
+    <head>
+        <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
+        <script>
+            function subst() {
+            var vars={};
+            var x=document.location.search.substring(1).split('&');
+            for(var i in x) {var z=x[i].split('=',2);vars[z[0]] = unescape(z[1]);}
+            var x=['frompage','topage','page','webpage','section','subsection','subsubsection'];
+            for(var i in x) {
+            var y = document.getElementsByClassName(x[i]);
+            for(var j=0; j<y.length; ++j) y[j].textContent = vars[x[i]];
+                }
+            }
+        </script>
+    </head>
+    <body style="border:0; margin: 0;" onload="subst()">
+        <table style="border-top: 1px solid black; width: 100%">
+            <tr >
+                <td style="text-align:right;font-size:9;" width="35%">Powered by Nysatec</td>
+                <td style="text-align:right;font-size:12;" width="55%">P&aacute; <span class="page"/></td><td style="text-align:left;font-size:12;">  de <span class="topage"/></td>
+            </tr>
+        </table>
+    </body>
+</html>]]></field>
+            <field name="orientation">Portrait</field>
+            <field name="format">Letter</field>
+            <field name="html"><![CDATA[<!DOCTYPE><html>
+    <head>
+        <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
+        <script>
+            function subst() {
+            var vars={};
+            var x=document.location.search.substring(1).split('&');
+            for(var i in x) {var z=x[i].split('=',2);vars[z[0]] = unescape(z[1]);}
+            var x=['frompage','topage','page','webpage','section','subsection','subsubsection'];
+            for(var i in x) {
+            var y = document.getElementsByClassName(x[i]);
+            for(var j=0; j<y.length; ++j) y[j].textContent = vars[x[i]];
+                }
+            }
+        </script>
+        <style type="text/css">
+            ${css}
+        </style>
+    </head>
+    <body style="border:0; margin: 0;" onload="subst()">
+        ${_debug or ''|n} </body>
+</html>]]>
+</field>
+<field eval="20.0" name="margin_top"/>
+<field name="css" ><![CDATA[
+
+body {
+  font-size:12px;
+  color:black;
+}
+
+]]> </field>
+            <field name="name">report_statement_balances</field>
+        </record>
+    </data>
 </openerp>

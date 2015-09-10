@@ -24,8 +24,9 @@ from datetime import datetime
 from openerp.osv.fields import datetime as datetime_field
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp.report import report_sxw
-from openerp import _
+from openerp.tools.translate import _
 from openerp.osv import orm, fields
+from report_webkit import webkit_report
 import logging
 _logger = logging.getLogger(__name__)
 
@@ -42,7 +43,7 @@ class bank_statement_balance_report(report_sxw.rml_parse):
         date_balance = data['date_balance']
         journal_ids = [x.id for x in data['journal_ids']]
         if not journal_ids:
-            raise Warning(_('No Financial Journals selected!'))
+            raise orm.except_orm(_('No Financial Journals selected!'))
         cr.execute(
             "SELECT s.name AS s_name, s.date AS s_date, j.code AS j_code, "
             "s.balance_end_real AS s_balance, "
@@ -99,8 +100,8 @@ class bank_statement_balance_report(report_sxw.rml_parse):
 
 
 
-class report_bankstatementbalance(orm.AbstractModel):
-    _name = 'report.account_bank_statement_advanced.report_statement_balances'
-    _inherit = 'report.abstract_report'
-    _template = 'account_bank_statement_advanced.report_statement_balances'
-    _wrapped_report_class = bank_statement_balance_report
+
+webkit_report.WebKitParser('report.bank.statement.balance.print',
+    'bank.statement.balance.print',
+    'addons/account_bank_statement_advanced/report/report_statement_balances.mako',
+    parser=bank_statement_balance_report)
