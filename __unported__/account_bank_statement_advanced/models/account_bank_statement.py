@@ -172,6 +172,26 @@ class AccountBankStatementLineGlobal(orm.Model):
 class AccountBankStatement(orm.Model):
     _inherit = 'account.bank.statement'
 
+    def _currency(self, cursor, user, ids, name, args, context=None):
+            res = {}
+            res_currency_obj = self.pool.get('res.currency')
+            res_users_obj = self.pool.get('res.users')
+            default_currency = res_users_obj.browse(cursor, user,
+                    user, context=context).company_id.currency_id
+            for statement in self.browse(cursor, user, ids, context=context):
+                currency = statement.journal_id.currency
+                if not currency:
+                    currency = default_currency
+                res[statement.id] = currency.id
+            currency_names = {}
+            for currency_id, currency_name in res_currency_obj.name_get(cursor,
+                    user, [x for x in res.values()], context=context):
+                currency_names[currency_id] = currency_name
+            for statement_id in res.keys():
+                currency_id = res[statement_id]
+                res[statement_id] = (currency_id, currency_names[currency_id])
+            return res
+
     def _all_lines_reconciled(self, cr, uid, ids, fields_name, args,
             context=None):
         """
@@ -192,11 +212,13 @@ class AccountBankStatement(orm.Model):
         return res
 
     _columns = {
-    'fiscalyear_id': fields.related('period_id','fiscalyear_id',
-        type='many2one', relation='account.fiscalyear', string='Fiscal Year',
-        store=True, readonly=True),
+    # 'fiscalyear_id': fields.related('period_id','fiscalyear_id',
+    #     type='many2one', relation='account.fiscalyear', string='Fiscal Year',
+    #     store=True, readonly=True),
     'all_lines_reconciled': fields.function(_all_lines_reconciled,
         string='All lines reconciled', type='boolean'),
+    'currency': fields.function(_currency, string='Currency',
+            type='many2one', relation='res.currency',store=True),
     }
 
     def init(self, cr):
@@ -347,6 +369,7 @@ class AccountBankStatementLine(orm.Model):
         'date': fields.date(string='Entry Date'),
         'partner_id': fields.many2one('res.partner',
             domain=['|', ('parent_id', '=', False), ('is_company', '=', True)]),
+        'journal_entry_id': fields.many2one('account.move', 'Journal Entry', copy=False),
 
     }
 

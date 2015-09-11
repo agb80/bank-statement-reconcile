@@ -53,7 +53,7 @@
           <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree/field[@name='date']" position="after">
             <field name="val_date"/>
           </xpath>
-          <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree/field[@name='bank_account_id']" position="after">
+          <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree/field[@name='account_id']" position="after">
             <field name="reconcile_get"/>
             <field name="move_get"/>
             <button name="action_process" attrs="{'invisible': [('move_state', '=', False)]}" string="Move" type="object" icon="gtk-go-forward"/>
@@ -61,7 +61,7 @@
             <field name="state" invisible="1"/>
             <field name="move_state" invisible="1"/>
           </xpath>
-          <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree/field[@name='bank_account_id']" position="attributes">
+          <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree/field[@name='account_id']" position="attributes">
             <attribute name="invisible">1</attribute>
           </xpath>
           <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree" position="after">
@@ -76,12 +76,13 @@
                 <field name="name"/>
                 <field name="ref"/>
                 <field name="partner_id"/>
-                <field name="bank_account_id"/>
+                <field name="account_id"/>
                 <newline/>
                 <field name="amount"/>
                 <newline/>
-                <field name="amount_currency" groups="base.group_multi_currency" attrs="{'readonly' : [('journal_entry_id', '!=', False)] }"/>
-                <field name="currency_id" groups="base.group_multi_currency" attrs="{'readonly' : [('journal_entry_id', '!=', False)] }"/>
+                <field name="journal_entry_id" invisible="1"/>
+<!--                 <field name="amount_currency" groups="base.group_multi_currency" attrs="{'readonly' : [('journal_entry_id', '!=', False)] }"/>
+                <field name="currency" groups="base.group_multi_currency" attrs="{'readonly' : [('journal_entry_id', '!=', False)] }"/> -->
                 <newline/>
                 <field name="globalisation_id" readonly="1"/>
                 <field name="globalisation_amount" attrs="{'invisible': [('globalisation_id', '=', False)]}"/>
@@ -91,7 +92,6 @@
                 <field name="reconcile_get"/>
                 <field name="move_get"/>
                 <field name="sequence" attrs="{'readonly':[('move_state', '!=', False)]}"/>
-                <field name="journal_entry_id" invisible="1"/>
               </group>
               <separator string="Notes"/>
               <field colspan="2" name="note" nolabel="1"/>
@@ -101,7 +101,7 @@
       </field>
     </record>
 
-    <record id="absa_bank_statement_cancel_form_inherit" model="ir.ui.view">
+<!--     <record id="absa_bank_statement_cancel_form_inherit" model="ir.ui.view">
       <field name="name">absa.bank.statement.cancel.form.inherit</field>
       <field name="model">account.bank.statement</field>
       <field name="inherit_id" ref="account_cancel.bank_statement_cancel_form_inherit"/>
@@ -112,7 +112,7 @@
           <attribute name="attrs">{'invisible': ['|', ('move_state', '=', False), ('state', '=', 'confirm')]}</attribute>
         </button>
       </field>
-    </record>
+    </record> -->
 
     <!-- Bank Statement Line View -->
     <record id="view_bank_statement_line_list" model="ir.ui.view">
@@ -145,9 +145,8 @@
     <record id="view_bank_statement_line_form" model="ir.ui.view">
       <field name="name">bank.statement.line.form</field>
       <field name="model">account.bank.statement.line</field>
-      <field name="priority">8</field>
       <field name="arch" type="xml">
-        <form string="Statement Line" create="false" delete="false">
+        <form string="Statement Line" version="7.0" create="false" delete="false">
           <header>
             <button name="action_process" attrs="{'invisible': [('move_state', '=', False)]}" string="Move" type="object" icon="gtk-go-forward"/>
             <button name="cancel" attrs="{'invisible': [('move_state', '=', False)]}" string="Cancel" type="object" icon="gtk-cancel"/>
@@ -162,7 +161,7 @@
               <field name="name"/>
               <field name="ref"/>
               <field name="partner_id"/>
-              <field name="bank_account_id"/>
+              <field name="account_id"/>
               <field name="amount" readonly="1"/>
               <field name="globalisation_id"/>
               <field name="globalisation_amount" attrs="{'invisible': [('globalisation_id', '=', False)]}"/>

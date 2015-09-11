@@ -1,6 +1,6 @@
 <?xml version="1.0" ?>
-<openerp>
-<!--   <data> -->
+<!--   <openerp>
+<data> -->
 <!--
     <template id="report_layout">
       <t t-if="o and 'company_id' in o">

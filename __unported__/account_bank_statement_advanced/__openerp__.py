@@ -31,8 +31,8 @@
         'account_cancel',
         'base_iban',
         'web_sheet_full_width_selective',
+        'report_webkit',
     ],
-    'conflicts': ['account_bank_statement_extensions'],
     'data': [
         'security/ir.model.access.csv',
         'security/account_security.xml',
