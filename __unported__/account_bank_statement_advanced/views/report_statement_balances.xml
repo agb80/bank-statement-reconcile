@@ -1,8 +1,8 @@
-<!-- <?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <openerp>
   <data>
 
-    <template id="report_statement_balances">
+<!--     <template id="report_statement_balances">
       <t t-call="report.html_container">
         <t t-set="data_report_margin_top" t-value="20"/>
         <t t-call="account_bank_statement_advanced.report_layout">
@@ -62,8 +62,7 @@
           </div>
         </t>
       </t>
-    </template>
+    </template>-->
 
   </data>
 </openerp>
- -->

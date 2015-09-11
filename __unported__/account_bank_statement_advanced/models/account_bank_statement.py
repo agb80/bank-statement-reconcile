@@ -212,9 +212,9 @@ class AccountBankStatement(orm.Model):
         return res
 
     _columns = {
-    # 'fiscalyear_id': fields.related('period_id','fiscalyear_id',
-    #     type='many2one', relation='account.fiscalyear', string='Fiscal Year',
-    #     store=True, readonly=True),
+    'fiscalyear_id': fields.related('period_id','fiscalyear_id',
+        type='many2one', relation='account.fiscalyear', string='Fiscal Year',
+        store=True, readonly=True),
     'all_lines_reconciled': fields.function(_all_lines_reconciled,
         string='All lines reconciled', type='boolean'),
     'currency': fields.function(_currency, string='Currency',

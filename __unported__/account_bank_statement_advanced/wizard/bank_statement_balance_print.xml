@@ -6,7 +6,7 @@
       <field name="name">Bank Statement Balances Report</field>
       <field name="model">bank.statement.balance.print</field>
       <field name="arch" type="xml">
-        <form string="Bank Statement Balances Report">
+        <form string="Bank Statement Balances Report" version="7.0">
           <group>
             <separator string="Select Balance Date" colspan="2"/>
             <field name="date_balance"/>
