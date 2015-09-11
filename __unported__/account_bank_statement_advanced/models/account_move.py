@@ -146,7 +146,8 @@ class AccountMoveLine(orm.Model):
 
     def fields_view_get(self, cr, uid, view_id=None, view_type='form',
                         toolbar=False, submenu=False, context=None):
-        ctx = context.copy()
+        if context is None: context = {}
+        ctx = dict(context)
         if ctx.get('act_window_from_bank_statement'):
             if view_type == 'tree':
                 view_id = self.env.ref(
@@ -160,7 +161,7 @@ class AccountMoveLine(orm.Model):
                     'view_move_line_reconcile_search').id
                 ctx.update({'view_mode': 'search'})
         return super(
-            AccountMoveLine, self.with_context(ctx)).fields_view_get(cr, uid,
+            AccountMoveLine, self).fields_view_get(cr, uid,
                 view_id=view_id, view_type=view_type,
                 toolbar=toolbar, submenu=submenu, context=context)
 
