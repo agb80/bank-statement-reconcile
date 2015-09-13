@@ -34,8 +34,6 @@ _logger = logging.getLogger(__name__)
 class bank_statement_balance_report(report_sxw.rml_parse):
 
     def set_context(self, objects, data, ids, report_type=None):
-        # _logger.warn('set_context, objects = %s, data = %s, ids = %s',
-        #              objects, data, ids)
         data = objects[0]
         cr = data._cr
         uid = data._uid
@@ -101,7 +99,7 @@ class bank_statement_balance_report(report_sxw.rml_parse):
 
 
 
-webkit_report.WebKitParser('report.bank.statement.balance.print',
+webkit_report.WebKitParser('report.report.statement.balances',
     'bank.statement.balance.print',
     'addons/account_bank_statement_advanced/report/report_statement_balances.mako',
     parser=bank_statement_balance_report)

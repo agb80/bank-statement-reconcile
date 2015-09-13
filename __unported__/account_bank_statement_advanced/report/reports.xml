@@ -12,9 +12,9 @@
  -->
 
     <report auto="True"
-        id="balance_report"
+        id="report_statement_balances"
         model="bank.statement.balance.print"
-        name="report_statement_balances"
+        name="report.statement.balances"
         file="account_bank_statement_advanced/report/report_statement_balances.mako"
         string="Bank Statement Balances Report"
         report_type="webkit"
