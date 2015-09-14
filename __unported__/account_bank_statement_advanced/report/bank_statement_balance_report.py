@@ -20,19 +20,24 @@
 #
 ##############################################################################
 
-from datetime import datetime
-from openerp.osv.fields import datetime as datetime_field
-from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp.report import report_sxw
+from openerp import pooler
+from openerp.osv.fields import datetime as datetime_field
 from openerp.tools.translate import _
-from openerp.osv import orm, fields
+from openerp import tools
+from tools import DEFAULT_SERVER_DATETIME_FORMAT
+from openerp import tests
+from openerp.osv import osv
+from openerp import netsvc
+import openerp
 from report_webkit import webkit_report
+import time
+from datetime import date, datetime
 import logging
 _logger = logging.getLogger(__name__)
 
 
 class bank_statement_balance_report(report_sxw.rml_parse):
-
     def set_context(self, objects, data, ids, report_type=None):
         data = objects[0]
         cr = data._cr
@@ -60,8 +65,9 @@ class bank_statement_balance_report(report_sxw.rml_parse):
             "ORDER BY j_curr_id, j.code", (date_balance, tuple(journal_ids)))
         lines = cr.dictfetchall()
         [x.update(
-            {'currency': data.env['res.currency'].browse(x['j_curr_id'])}
-            ) for x in lines]
+            {'currency': data.pool.get('res.currency').browse(cr, uid, 
+                x['j_curr_id'])}
+        ) for x in lines]
         currencies = list(set([x['currency'] for x in lines]))
         totals = []
         for currency in currencies:
@@ -74,7 +80,7 @@ class bank_statement_balance_report(report_sxw.rml_parse):
                 'total_amount': total_amount,
             })
         if not lines:
-            raise Warning(_('No records found for your selection!'))
+            raise orm.except_orm(_('No records found for your selection!'))
 
         report_date = datetime_field.context_timestamp(
             cr, uid, datetime.now(), context
@@ -86,6 +92,7 @@ class bank_statement_balance_report(report_sxw.rml_parse):
             'date_balance': date_balance,
             'report_date': report_date,
         })
+
         super(bank_statement_balance_report, self).set_context(
             objects, data, ids, report_type=report_type)
 

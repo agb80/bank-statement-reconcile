@@ -47,6 +47,7 @@ class bank_statement_balance_print(orm.TransientModel):
     }
     _defaults = {
         'journal_ids': _get_journals,
+        'date_balance':lambda *a: datetime.today().strftime('%Y-%m-%d'),
     }
 
     #V8 to V7
@@ -57,5 +58,5 @@ class bank_statement_balance_print(orm.TransientModel):
 
     def balance_print(self, cr, uid, ids, data, context=None):
         return {'type': 'ir.actions.report.xml',
-                'report_name': 'account_bank_statement_advanced.report_statement_balances',
+                'report_name': 'report.statement.balances',
                 'datas': data}
