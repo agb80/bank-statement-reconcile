@@ -9,7 +9,6 @@
 <!--margion_top : 20-->
 <body>
     %for o in objects :
-    ${set_global_data(o)}
       <div class="page">
         <h2>
           <span>Bank Statement Balances Report</span>
@@ -27,25 +26,25 @@
             </tr>
           </thead>
           <tbody>
-            %for l in o.lines:
+            %for l in lines:
             <tr>
               <td>
-                <span>${ l.s_name or ''}</span>
+                <span>${ l['s_name'] or ''}</span>
               </td>
               <td>
-                <span>${ l.s_date or ''}</span>
+                <span>${ l['s_date'] or ''}</span>
               </td>
               <td>
-                <span>${ l.j_code or ''} </span>
+                <span>${ l['j_code'] or ''} </span>
               </td>
               <td class="text-right">
-                <span>$ ${ formatLang(l.s_balance) or ''}</span>
+                <span>$ ${ formatLang(l['s_balance']) or ''}</span>
               </td>
             </tr>
           </tbody>
           %endfor
           <tfoot>
-            %for t in o.totals:
+            %for t in totals:
             <tr>
               <td>
                 &amp;nbsp;
@@ -56,12 +55,12 @@
               <td>
                 <strong>
                   <span>Total</span>
-                  <span> ${len(o.totals) or ''}</span>
+                  <span> ${len(totals) or ''}</span>
                 </strong>
               </td>
               <td class="text-right">
                 <strong>
-                  <span>$ ${formatLang(t.total_amount) or '' }</span>
+                  <span>$ ${formatLang(t['total_amount']) or '' }</span>
                 </strong>
               </td>
             </tr>
