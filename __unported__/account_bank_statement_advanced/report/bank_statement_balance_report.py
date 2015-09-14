@@ -25,12 +25,12 @@ from openerp import pooler
 from openerp.osv.fields import datetime as datetime_field
 from openerp.tools.translate import _
 from openerp import tools
-from tools import DEFAULT_SERVER_DATETIME_FORMAT
+from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp import tests
 from openerp.osv import osv
 from openerp import netsvc
 import openerp
-from report_webkit import webkit_report
+from openerp.addons.report_webkit import webkit_report
 import time
 from datetime import date, datetime
 import logging
@@ -65,7 +65,7 @@ class bank_statement_balance_report(report_sxw.rml_parse):
             "ORDER BY j_curr_id, j.code", (date_balance, tuple(journal_ids)))
         lines = cr.dictfetchall()
         [x.update(
-            {'currency': data.pool.get('res.currency').browse(cr, uid, 
+            {'currency': data.pool.get('res.currency').browse(cr, uid,
                 x['j_curr_id'])}
         ) for x in lines]
         currencies = list(set([x['currency'] for x in lines]))
