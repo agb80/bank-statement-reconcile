@@ -46,10 +46,10 @@
           <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']" position="attributes">
             <attribute name="options">{'reload_on_button': true}</attribute>
           </xpath>
-          <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree" position="attributes">
+<!--           <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree" position="attributes">
             <attribute name="colors">blue:amount and move_state != 'posted';</attribute>
             <attribute name="editable"/>
-          </xpath>
+          </xpath> -->
           <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree/field[@name='date']" position="after">
             <field name="val_date"/>
           </xpath>
@@ -81,8 +81,6 @@
                 <field name="amount"/>
                 <newline/>
                 <field name="journal_entry_id" invisible="1"/>
-<!--                 <field name="amount_currency" groups="base.group_multi_currency" attrs="{'readonly' : [('journal_entry_id', '!=', False)] }"/>
-                <field name="currency" groups="base.group_multi_currency" attrs="{'readonly' : [('journal_entry_id', '!=', False)] }"/> -->
                 <newline/>
                 <field name="globalisation_id" readonly="1"/>
                 <field name="globalisation_amount" attrs="{'invisible': [('globalisation_id', '=', False)]}"/>

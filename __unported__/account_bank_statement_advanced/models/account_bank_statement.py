@@ -117,9 +117,9 @@ class AccountBankStatementLineGlobal(orm.Model):
                 ),
     }
 
-    _sql_constraints = [
-        ('code_uniq', 'unique (code)', 'The code must be unique !'),
-    ]
+    # _sql_constraints = [
+    #     ('code_uniq', 'unique (code)', 'The code must be unique !'),
+    # ]
 
     # @api.model
     # def name_search(self, name, args=None, operator='ilike', limit=100):

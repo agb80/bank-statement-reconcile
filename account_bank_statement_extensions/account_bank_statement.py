@@ -70,9 +70,9 @@ class account_bank_statement_line_global(orm.Model):
         'code': lambda s,c,u,ctx={}: s.pool.get('ir.sequence').get(c, u, 'account.bank.statement.line.global'),
         'name': '/',
     }
-    _sql_constraints = [
-        ('code_uniq', 'unique (code)', 'The code must be unique !'),
-    ]
+    # _sql_constraints = [
+    #     ('code_uniq', 'unique (code)', 'The code must be unique !'),
+    # ]
 
     def name_search(self, cr, user, name, args=None, operator='ilike', context=None, limit=100):
         if not args:
