@@ -5,8 +5,6 @@
         ${css}
     </style>
 </head>
-
-<!--margion_top : 20-->
 <body>
     %for o in objects :
       <div class="page">
@@ -15,8 +13,9 @@
 
           <span>${o.date_balance or ''}</span>
         </h2>
+        <hr/>
 
-        <table class="table table-condensed">
+        <table class="basic_table">
           <thead>
             <tr>
               <th>Name</th>
@@ -28,13 +27,13 @@
           <tbody>
             %for l in lines:
             <tr>
-              <td>
+              <td class="basic_td">
                 <span>${ l['s_name'] or ''}</span>
               </td>
-              <td>
+              <td class="basic_td">
                 <span>${ l['s_date'] or ''}</span>
               </td>
-              <td>
+              <td class="basic_td">
                 <span>${ l['j_code'] or ''} </span>
               </td>
               <td class="text-right">
@@ -45,20 +44,20 @@
           %endfor
           <tfoot>
             %for t in totals:
-            <tr>
-              <td>
-                &amp;nbsp;
+            <tr class="basic_tr">
+              <td class="basic_td">
+                &nbsp;
               </td>
-              <td>
-                &amp;nbsp;
+              <td class="basic_td">
+                &nbsp;
               </td>
-              <td>
+              <td class="basic_td">
                 <strong>
                   <span>Total</span>
-                  <span> ${len(totals) or ''}</span>
+                  <span> ${ len(totals) or ''}</span>
                 </strong>
               </td>
-              <td class="text-right">
+              <td class="basic_td text-right">
                 <strong>
                   <span>$ ${formatLang(t['total_amount']) or '' }</span>
                 </strong>
