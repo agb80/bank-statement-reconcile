@@ -27,7 +27,7 @@ from openerp.tools.translate import _
 from openerp import tools
 from openerp.tools import DEFAULT_SERVER_DATETIME_FORMAT
 from openerp import tests
-from openerp.osv import osv
+from openerp.osv import orm
 from openerp import netsvc
 import openerp
 from openerp.addons.report_webkit import webkit_report
@@ -46,7 +46,10 @@ class bank_statement_balance_report(report_sxw.rml_parse):
         date_balance = data['date_balance']
         journal_ids = [x.id for x in data['journal_ids']]
         if not journal_ids:
-            raise orm.except_orm(_('No Financial Journals selected!'))
+            raise orm.except_orm(
+                _('Error'),
+                _('No Financial Journals selected!')
+            )
         cr.execute(
             "SELECT s.name AS s_name, s.date AS s_date, j.code AS j_code, "
             "s.balance_end_real AS s_balance, "
@@ -80,7 +83,10 @@ class bank_statement_balance_report(report_sxw.rml_parse):
                 'total_amount': total_amount,
             })
         if not lines:
-            raise orm.except_orm(_('No records found for your selection!'))
+            raise orm.except_orm(
+                _('Error'),
+                _('No records found for your selection!')
+            )
 
         report_date = datetime_field.context_timestamp(
             cr, uid, datetime.now(), context

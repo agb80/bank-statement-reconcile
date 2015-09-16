@@ -431,15 +431,17 @@ class AccountBankStatementLine(orm.Model):
             'statement_id': st_line.statement_id.id,
             })
         module = __name__.split('addons.')[1].split('.')[0]
-        view = self.env.ref(
-            '%s.view_move_from_bank_form' % module)
+        dummy, view_id = self.pool.get('ir.model.data').get_object_reference(
+            cr, uid, module, 'view_move_from_bank_form'
+        )
+        
         act_move = {
             'name': _('Journal Entry'),
             'res_id': st_line.journal_entry_id.id,
             'view_type': 'form',
             'view_mode': 'form',
             'res_model': 'account.move',
-            'view_id': [view.id],
+            'view_id': [view_id],
             'type': 'ir.actions.act_window',
             }
         act_move['context'] = dict(ctx, wizard_action=pickle.dumps(act_move))
