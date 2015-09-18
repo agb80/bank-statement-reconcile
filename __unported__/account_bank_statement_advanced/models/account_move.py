@@ -61,7 +61,8 @@ class AccountMove(orm.Model):
                         _("Operation not allowed ! "
                           "\nYou cannot unpost an Accounting Entry "
                           "that is linked to a Confirmed Bank Statement."))
-        return super(AccountMove, self).button_cancel(cr, uid, ids, context=context)
+        return super(AccountMove, self).button_cancel(cr, uid,
+            ids, context=context)
 
 
 # class AccountMoveLine(models.Model):
@@ -195,31 +196,42 @@ class AccountMoveLine(orm.Model):
         return super(AccountMoveLine, self).write(
             cr, uid, ids, vals, context, check, update_check)
 
-    def prepare_move_lines_for_reconciliation_widget(self, cr, uid, lines, target_currency=False, target_date=False, context=None):
-        """ Returns move lines formatted for the manual/bank reconciliation widget
+    def prepare_move_lines_for_reconciliation_widget(self, cr, uid, lines,
+        target_currency=False, target_date=False, context=None):
+        """ Returns move lines formatted for the manual/bank reconciliation
+                widget
 
-            :param target_currency: curreny you want the move line debit/credit converted into
+            :param target_currency: curreny you want the move line debit/credit
+                converted into
             :param target_date: date to use for the monetary conversion
         """
+        print "==========================================================="
+        print "PREPARE_MOVE_LINES_FOR_RECONCILIATION_WIDGET"
         if not lines:
             return []
         if context is None:
             context = {}
         ctx = context.copy()
         currency_obj = self.pool.get('res.currency')
-        company_currency = self.pool.get('res.users').browse(cr, uid, uid, context=context).company_id.currency_id
-        rml_parser = report_sxw.rml_parse(cr, uid, 'reconciliation_widget_aml', context=context)
+        company_currency = self.pool.get('res.users').browse(cr, uid,
+            uid, context=context).company_id.currency_id
+        rml_parser = report_sxw.rml_parse(cr, uid, 'reconciliation_widget_aml',
+            context=context)
         ret = []
 
         for line in lines:
             partial_reconciliation_siblings_ids = []
             if line.reconcile_partial_id:
-                partial_reconciliation_siblings_ids = self.search(cr, uid, [('reconcile_partial_id', '=', line.reconcile_partial_id.id)], context=context)
+                partial_reconciliation_siblings_ids = self.search(cr, uid,
+                [
+                    ('reconcile_partial_id', '=', line.reconcile_partial_id.id)
+                ], context=context)
                 partial_reconciliation_siblings_ids.remove(line.id)
 
             ret_line = {
                 'id': line.id,
-                'name': line.name != '/' and line.move_id.name + ': ' + line.name or line.move_id.name,
+                'name': line.name != '/' and \
+                    line.move_id.name + ': ' + line.name or line.move_id.name,
                 'ref': line.move_id.ref or '',
                 'account_code': line.account_id.code,
                 'account_name': line.account_id.name,
@@ -231,7 +243,8 @@ class AccountMoveLine(orm.Model):
                 'partner_id': line.partner_id.id,
                 'partner_name': line.partner_id.name,
                 'is_partially_reconciled': bool(line.reconcile_partial_id),
-                'partial_reconciliation_siblings_ids': partial_reconciliation_siblings_ids,
+                'partial_reconciliation_siblings_ids': \
+                    partial_reconciliation_siblings_ids,
             }
 
             # Amount residual can be negative

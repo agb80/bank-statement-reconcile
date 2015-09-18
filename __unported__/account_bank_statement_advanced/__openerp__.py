@@ -49,7 +49,7 @@
             # 'static/src/js/account_tour_bank_statement_reconciliation.js',
         ],
         'qweb':[
-        'static/src/xml/account_bank_statement_reconciliation.xml'
+            'static/src/xml/account_bank_statement_reconciliation.xml'
         ],
 
 }

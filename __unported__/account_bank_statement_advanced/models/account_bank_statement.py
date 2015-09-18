@@ -173,20 +173,20 @@ class AccountBankStatementLineGlobal(orm.Model):
         context=None, limit=100):
         args = args or []
         if name:
-            recs = self.search(cr, uid, [('code', '=ilike', name)] + args, limit=limit)
+            recs = self.search(cr, user, [('code', '=ilike', name)] + args, limit=limit)
             if not recs:
-                recs = self.search(cr, uid,
+                recs = self.search(cr, user,
                     [('name', operator, name)] + args, limit=limit)
             if not recs and len(name.split()) >= 2:
                 # Separating code and name for searching
                 # name can contain spaces
                 operand1, operand2 = name.split(' ', 1)
-                recs = self.search(cr, uid, [
+                recs = self.search(cr, user, [
                     ('code', '=like', operand1),
                     ('name', operator, operand2)
                 ] + args, limit=limit)
         else:
-            recs = self.browse(cr, uid, ids, context=context)
+            return {}
 
 
 # class AccountBankStatement(models.Model):
@@ -825,6 +825,42 @@ class AccountBankStatementLine(orm.Model):
         user = self.pool.get("res.users").browse(cr, uid, uid)
         return ['|', ('company_id', '=', False), ('company_id', 'child_of', [user.company_id.id]), ('journal_entry_id', '=', False), ('account_id', '=', False)]
 
+
+    def _compute_reconcile_get(self, cr, uid, ids, field_name, args, context=None):
+        if context is None: context = {}
+        rec = self.browse(cr, uid, ids, context=context)[0]
+        result = {}
+        res = '-'
+        move = rec.journal_entry_id
+        if move:
+            reconciles = filter(lambda x: x.reconcile_id, move.line_id)
+            rec_partials = filter(
+                lambda x: x.reconcile_partial_id, move.line_id)
+            rec_total = reduce(
+                lambda y, t: (t.credit or 0.0) - (t.debit or 0.0) + y,
+                reconciles + rec_partials, 0.0)
+            if rec_total:
+                res = '%.2f' % rec_total
+                if rec_total != self.amount or rec_partials:
+                    res += ' (!)'
+        result[rec.id] = res
+        print "=>result", result
+        return result
+
+    def _compute_move_get(self, cr, uid, ids, field_name, args, context=None):
+        if context is None: context = {}
+        rec = self.browse(cr, uid, ids, context=context)[0]
+        result = {}
+        res = '-'
+        move = rec.journal_entry_id
+        if move:
+            field_dict = self.pool.get('account.move').fields_get(
+                cr, uid, ['state'], context=context)
+            result_list = field_dict['state']['selection']
+            res = filter(lambda x: x[0] == move.state, result_list)[0][1]
+        result[rec.id] = res
+        return result
+
     _columns = {
 
         'state': fields.related('statement_id','state', type='selection',
@@ -874,10 +910,21 @@ class AccountBankStatementLine(orm.Model):
             states={'confirm': [('readonly', True)]},
             help="Creditor Reference. For SEPA (SCT) transactions, "
                  "the <CdtrRefInf> reference is recorded in this field."),
-        'reconcile_get':fields.char(
-            string='Reconciled', compute='_compute_reconcile_get', readonly=True),
-        'move_get': fields.char(
-            string='Move', compute='_compute_move_get', readonly=True),
+        # 'reconcile_get':fields.char(
+        #     string='Reconciled', compute='_compute_reconcile_get', readonly=True),
+        'reconcile_get': fields.function(
+            _compute_reconcile_get, type='char', string='Reconciled',
+            store=True, readonly=True,
+        ),
+
+        # 'move_get': fields.char(
+        #     string='Move', compute='_compute_move_get', readonly=True),
+
+        'move_get': fields.function(
+            _compute_move_get, type='char', string='Move', store=True,
+            readonly=True,
+        ),
+
         'move_state': fields.related('journal_entry_id','state',type='selection',
             string='Move State', readonly=True),
         # update existing fields
@@ -890,38 +937,6 @@ class AccountBankStatementLine(orm.Model):
         'partner_name': fields.char('Partner Name', help="This field is used to record the third party name when importing bank statement in electronic format, when the partner doesn't exist yet in the database (or cannot be found)."),
 
     }
-
-    def _compute_reconcile_get(self, cr, uid, ids, field_name, args, context=None):
-        if context is None: context = {}
-        rec = self.browse(cr, uid, ids, context=context)[0]
-        result = {}
-        res = '-'
-        move = rec.journal_entry_id
-        if move:
-            reconciles = filter(lambda x: x.reconcile_id, move.line_id)
-            rec_partials = filter(
-                lambda x: x.reconcile_partial_id, move.line_id)
-            rec_total = reduce(
-                lambda y, t: (t.credit or 0.0) - (t.debit or 0.0) + y,
-                reconciles + rec_partials, 0.0)
-            if rec_total:
-                res = '%.2f' % rec_total
-                if rec_total != self.amount or rec_partials:
-                    res += ' (!)'
-        result[rec.id] = res
-
-    def _compute_move_get(self, cr, uid, ids, field_name, args, context=None):
-        if context is None: context = {}
-        rec = self.browse(cr, uid, ids, context=context)[0]
-        result = {}
-        res = '-'
-        move = rec.journal_entry_id
-        if move:
-            field_dict = self.pool.get('account.move').fields_get(
-                cr, uid, ['state'], context=context)
-            result_list = field_dict['state']['selection']
-            res = filter(lambda x: x[0] == move.state, result_list)[0][1]
-        self.move_get = res
 
     def action_cancel(self):
         """

@@ -33,7 +33,7 @@
         </form>
       </field>
     </record>
-    
+
     <record id="action_bank_reconcile_bank_statements" model="ir.actions.client">
       <field name="name">Reconciliation on Bank Statements</field>
       <field name="tag">bank_statement_reconciliation_view</field>
@@ -58,6 +58,7 @@
           </xpath>
           <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree/field[@name='date']" position="after">
             <field name="val_date"/>
+            <field name="account_id" required="0"/>
           </xpath>
           <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree/field[@name='account_id']" position="after">
             <field name="reconcile_get"/>
