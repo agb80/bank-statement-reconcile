@@ -32,24 +32,21 @@
         'base_iban',
         'web_sheet_full_width_selective',
         'report_webkit',
-        'account_bank_statement_voucher',
     ],
     'data': [
         'security/ir.model.access.csv',
         'security/account_security.xml',
-        # 'data/data.xml',
         'views/account_bank_statement_view.xml',
         'views/account_move_view.xml',
         'views/report_layout.xml',
-        # 'views/report_statement_balances.xml',
-        # 'views/account.xml',
         'wizard/bank_statement_balance_print.xml',
         'report/reports.xml',
         ],
         'js': [
             'static/src/js/account_widgets.js',
-            'static/src/js/account_move_reconciliation.js',            
-            'static/src/js/account_tour_bank_statement_reconciliation.js',
+            'static/src/js/account_move_reconciliation.js',
+            'static/src/js/account_move_line_quickadd.js',
+            # 'static/src/js/account_tour_bank_statement_reconciliation.js',
         ],
         'qweb':[
         'static/src/xml/account_bank_statement_reconciliation.xml'

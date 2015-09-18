@@ -28,7 +28,7 @@ _logger = logging.getLogger(__name__)
 # from openerp import models, fields, api, _
 # import openerp.addons.decimal_precision as dp
 # from openerp.exceptions import Warning
-
+from openerp.report import report_sxw
 from openerp.osv import osv, orm, fields
 from openerp.tools import float_compare, float_round
 from openerp.tools.translate import _
@@ -50,7 +50,7 @@ class ir_model_data(osv.osv):
         if not res['res_id']:
             raise ValueError('External ID not found in the system: %s' % (xmlid))
         return ids[0], res['model'], res['res_id']
-    
+
     def xmlid_to_res_model_res_id(self, cr, uid, xmlid, raise_if_not_found=False):
         """ Return (res_model, res_id)"""
         try:
@@ -268,7 +268,7 @@ class AccountBankStatement(orm.Model):
         """
         self.write(cr, uid, ids, {'state':'draft'}, context=context)
         return True
-  
+
     def get_format_currency_js_function(self, cr, uid, id, context=None):
         """ Returns a string that can be used to instanciate a javascript function.
             That function formats a number according to the statement line's currency or the statement currency"""
@@ -290,6 +290,10 @@ class AccountBankStatement(orm.Model):
                 function += "if (currency_id === " + str(st_line_currency.id) + "){ " + return_str + " }"
                 done_currencies.append(st_line_currency.id)
         return function
+
+    def number_of_lines_reconciled(self, cr, uid, ids, context=None):
+        bsl_obj = self.pool.get('account.bank.statement.line')
+        return bsl_obj.search_count(cr, uid, [('statement_id', 'in', ids), ('journal_entry_id', '!=', False)], context=context)
 
 # class AccountBankStatementLine(models.Model):
 #     _inherit = 'account.bank.statement.line'
@@ -360,7 +364,7 @@ class AccountBankStatementLine(orm.Model):
     # partner_id = fields.Many2one(
     #     domain=['|', ('parent_id', '=', False), ('is_company', '=', True)])
 
-    
+
 
     def get_data_for_reconciliations(self, cr, uid, ids, excluded_ids=None, search_reconciliation_proposition=True, context=None):
         """ Returns the data required to display a reconciliation, for each statement line id in ids """
@@ -883,6 +887,7 @@ class AccountBankStatementLine(orm.Model):
         'journal_entry_id': fields.many2one('account.move', 'Journal Entry', copy=False),
         'currency_id': fields.many2one('res.currency', 'Currency', help="The optional other currency if it is a multi-currency entry."),
         'amount_currency': fields.float('Amount Currency', help="The amount expressed in an optional other currency if it is a multi-currency entry.", digits_compute=dp.get_precision('Account')),
+        'partner_name': fields.char('Partner Name', help="This field is used to record the third party name when importing bank statement in electronic format, when the partner doesn't exist yet in the database (or cannot be found)."),
 
     }
 
@@ -934,10 +939,10 @@ class AccountBankStatementLine(orm.Model):
         st_line = self.browse(cr, uid, ids, context=context)[0]
         if not st_line.move_ids:
             st_number = st_name
-            st_line_number = statement_obj.get_next_st_line_number(cr, uid, 
+            st_line_number = statement_obj.get_next_st_line_number(cr, uid,
                 st_number, st_line, context)
             company_currency_id = journal.company_id.currency_id.id
-            move_id = self.create_move(cr, uid, st_line.id, 
+            move_id = self.create_move(cr, uid, st_line.id,
                 company_currency_id, st_line_number, context=context)
         else:
             if len(st_line.move_ids) > 1:
@@ -945,11 +950,11 @@ class AccountBankStatementLine(orm.Model):
                         _('Multiple Account Moves linked to a single \
                             Bank Statement Line is currently not supported.'
                           'Bank Statement \
-                          "%s", Bank Statement Line "%s"') % (st_line.statement_id.name, 
-                          st_line_number) )               
+                          "%s", Bank Statement Line "%s"') % (st_line.statement_id.name,
+                          st_line_number) )
             move_id = st_line.move_ids[0].id
             mod_obj = self.pool.get('ir.model.data')
-        move_view = mod_obj.get_object_reference(cr, uid, 
+        move_view = mod_obj.get_object_reference(cr, uid,
             'account_bank_statement_voucher', 'view_move_from_bank_form')
         act_move = {
             'name': _('Journal Entry'),
@@ -998,12 +1003,12 @@ class AccountBankStatementLine(orm.Model):
         # cf. https://github.com/odoo/odoo/pull/8396
         if not vals.get('name'):
             vals['name'] = '/'
-        return super(AccountBankStatementLine, self).create(cr, 
+        return super(AccountBankStatementLine, self).create(cr,
             uid, vals, context=context)
 
     def _needaction_domain_get(self, cr, uid, vals, context=None):
         if context is None: context = {}
-        res = super(AccountBankStatementLine, self)._needaction_domain_get(cr, 
+        res = super(AccountBankStatementLine, self)._needaction_domain_get(cr,
             uid, vals, context=context)
         res.append(('amount', '=', True))
         return res
@@ -1013,7 +1018,7 @@ class account_statement_operation_template(orm.Model):
     _description = "Preset for the lines that can be created rec"
     _columns = {
         'name': fields.char('Button Label', required=True),
-        'account_id': fields.many2one('account.account', 'Account', 
+        'account_id': fields.many2one('account.account', 'Account',
             ondelete='cascade', domain=[
                 ('type', 'not in', ('view', 'closed', 'consolidation'))
             ]),
@@ -1023,21 +1028,21 @@ class account_statement_operation_template(orm.Model):
             ('percentage_of_total','Percentage of total amount'),
             ('percentage_of_balance', 'Percentage of open balance')
             ],'Amount type', required=True),
-        'amount': fields.float('Amount', 
-            digits_compute=dp.get_precision('Account'), 
+        'amount': fields.float('Amount',
+            digits_compute=dp.get_precision('Account'),
             help="The amount will count as a debit if it is negative, as a \
             credit if it is positive (except if amount type is 'Percentage of \
             open balance').", required=True),
-        'tax_id': fields.many2one('account.tax', 'Tax', 
+        'tax_id': fields.many2one('account.tax', 'Tax',
             ondelete='restrict', domain=[
-                ('type_tax_use', 'in', ['purchase', 'all']), 
+                ('type_tax_use', 'in', ['purchase', 'all']),
                 ('parent_id', '=', False)
             ]),
-        'analytic_account_id': fields.many2one('account.analytic.account', 
-            'Analytic Account', 
-            ondelete='set null', 
+        'analytic_account_id': fields.many2one('account.analytic.account',
+            'Analytic Account',
+            ondelete='set null',
             domain=[
-                ('type','!=','view'), 
+                ('type','!=','view'),
                 ('state','not in',('close','cancelled'))
             ]),
     }

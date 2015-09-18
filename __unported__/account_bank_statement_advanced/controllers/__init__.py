@@ -19,8 +19,4 @@
 #    along with this program. If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-
-from . import account_bank_statement
-from . import account_move
-from . import res_partner_bank
-from . import res_currency
+from . import main
