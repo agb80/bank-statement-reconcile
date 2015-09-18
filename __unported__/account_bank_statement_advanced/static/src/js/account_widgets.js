@@ -21,7 +21,6 @@
 ##############################################################################
 */
 openerp.account_bank_statement_advanced = function (instance) {
-
     instance.web.account.bankStatementReconciliation.include({
 
         start: function() {

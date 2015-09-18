@@ -47,7 +47,7 @@
         'report/reports.xml',
         ],
         'js': [
-            'static/src/js/account_move_reconciliation.js'
-            'static/src/js/account_widgets.js'
+            'static/src/js/account_widgets.js',
+            'static/src/js/account_move_reconciliation.js',            
         ],
 }

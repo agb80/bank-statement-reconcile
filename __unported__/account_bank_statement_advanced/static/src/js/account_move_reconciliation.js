@@ -5,7 +5,6 @@ openerp.account = function (instance) {
     var QWeb = instance.web.qweb;
     
     instance.web.account = instance.web.account || {};
-    
     instance.web.client_actions.add('bank_statement_reconciliation_view', 'instance.web.account.bankStatementReconciliation');
     instance.web.account.bankStatementReconciliation = instance.web.Widget.extend({
         className: 'oe_bank_statement_reconciliation',
