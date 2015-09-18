@@ -46,10 +46,6 @@
           <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']" position="attributes">
             <attribute name="options">{'reload_on_button': true}</attribute>
           </xpath>
-<!--           <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree" position="attributes">
-            <attribute name="colors">blue:amount and move_state != 'posted';</attribute>
-            <attribute name="editable"/>
-          </xpath> -->
           <xpath expr="//page[@name='statement_line_ids']/field[@name='line_ids']/tree/field[@name='date']" position="after">
             <field name="val_date"/>
           </xpath>

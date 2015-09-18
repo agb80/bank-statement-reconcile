@@ -418,33 +418,32 @@ class AccountBankStatementLine(orm.Model):
 
     def action_process(self, cr, uid, ids, context=None):
         if context is None: context = {}
-        """
-        TODO:
-        add reconciliation/move logic for use in bank.statement.line list view
-        """
         st_line = self.browse(cr, uid, ids, context=context)[0]
-        ctx = context.copy()
-        ctx.update({
-            'act_window_from_bank_statement': True,
-            'active_id': st_line.id,
-            'active_ids': [st_line.id],
-            'statement_id': st_line.statement_id.id,
-            })
-        module = __name__.split('addons.')[1].split('.')[0]
-        dummy, view_id = self.pool.get('ir.model.data').get_object_reference(
-            cr, uid, module, 'view_move_from_bank_form'
-        )
-        
+        if not st_line.move_ids:
+            st_number = st_name
+            st_line_number = statement_obj.get_next_st_line_number(cr, uid, st_number, st_line, context)
+            company_currency_id = journal.company_id.currency_id.id
+            move_id = self.create_move(cr, uid, st_line.id, company_currency_id, st_line_number, context=context)
+        else:
+            if len(st_line.move_ids) > 1:
+                raise orm.except_orm(_('Unsupported Function !'),
+                        _('Multiple Account Moves linked to a single Bank Statement Line is currently not supported.' \
+                          'Bank Statement "%s", Bank Statement Line "%s"') % (st_line.statement_id.name, st_line_number) )               
+            move_id = st_line.move_ids[0].id
+            mod_obj = self.pool.get('ir.model.data')
+        move_view = mod_obj.get_object_reference(cr, uid, 'account_bank_statement_voucher', 'view_move_from_bank_form')
         act_move = {
             'name': _('Journal Entry'),
-            'res_id': st_line.journal_entry_id.id,
+            'res_id': move_id,
             'view_type': 'form',
             'view_mode': 'form',
             'res_model': 'account.move',
-            'view_id': [view_id],
+            'view_id': [move_view[1]],
+            'nodestroy': True,
+            'target': 'new',
             'type': 'ir.actions.act_window',
-            }
-        act_move['context'] = dict(ctx, wizard_action=pickle.dumps(act_move))
+        }
+        act_move['context'] = dict(context, wizard_action=pickle.dumps(act_move))
         return act_move
 
     def unlink(self, cr, uid, ids, context=None):
