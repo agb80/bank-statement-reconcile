@@ -16,6 +16,7 @@
             <field name="type"/>
             <field name="name"/>
           </group>
+          <newline/>
           <notebook>
             <page string="Transactions">
               <field colspan="2" name="bank_statement_line_ids" nolabel="1"/>

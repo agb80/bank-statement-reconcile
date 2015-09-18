@@ -295,12 +295,30 @@ class AccountBankStatement(orm.Model):
         bsl_obj = self.pool.get('account.bank.statement.line')
         return bsl_obj.search_count(cr, uid, [('statement_id', 'in', ids), ('journal_entry_id', '!=', False)], context=context)
 
+
+
+    def button_confirm_bank(self, cr, uid, ids, context=None):
+        if context is None: context = {}
+        res = super(AccountBankStatement, self).button_confirm_bank(cr,
+            uid, ids, context=context)
+        for record in self.browse(cr, uid, ids, context=context):
+            for line in record.line_ids:
+                print "=>line", line
+                for move in line.move_ids:
+                    print "=>move", move
+        if len(ids) >= 1:
+            raise orm.except_orm(
+                _('Error!'),
+                _('Except!'),
+            )
+        return res
+
+
 # class AccountBankStatementLine(models.Model):
 #     _inherit = 'account.bank.statement.line'
 
 class AccountBankStatementLine(orm.Model):
     _inherit = 'account.bank.statement.line'
-
 
     # old fields
     # state = fields.Selection(

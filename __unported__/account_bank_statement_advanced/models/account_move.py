@@ -64,7 +64,6 @@ class AccountMove(orm.Model):
         return super(AccountMove, self).button_cancel(cr, uid,
             ids, context=context)
 
-
 # class AccountMoveLine(models.Model):
 #     _inherit = 'account.move.line'
 
