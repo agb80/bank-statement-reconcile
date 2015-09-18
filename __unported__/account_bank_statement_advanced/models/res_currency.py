@@ -18,17 +18,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 ##############################################################################
-from openerp.osv import fields, osv
+
+import math
+
+from openerp.osv import orm
 
 
-class res_currency(osv.osv):
+class res_currency(orm.Model):
     _inherit = 'res.currency'
 
     def get_format_currencies_js_function(self, cr, uid, context=None):
         """ Returns a string that can be used to instanciate a javascript function that formats numbers as currencies.
             That function expects the number as first parameter and the currency id as second parameter. In case of failure it returns undefined."""
         function = ""
-        for row in self.search_read(cr, uid, domain=[], fields=['id', 'name', 'symbol', 'rounding', 'position'], context=context):
+        row_ids = self.search(cr, uid, [], context=context)
+        for row in self.read(
+            cr, uid, row_ids, fields=['id', 'name', 'symbol', 'rounding', 'position'],
+            context=context
+        ):
             digits = int(math.ceil(math.log10(1 / row['rounding'])))
             symbol = row['symbol'] or row['name']
 
