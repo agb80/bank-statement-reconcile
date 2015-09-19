@@ -36,8 +36,8 @@
     'data': [
         'security/ir.model.access.csv',
         'security/account_security.xml',
-        'views/account_bank_statement_view.xml',
         'views/account_move_view.xml',
+        'views/account_bank_statement_view.xml',
         'views/report_layout.xml',
         'wizard/bank_statement_balance_print.xml',
         'report/reports.xml',
