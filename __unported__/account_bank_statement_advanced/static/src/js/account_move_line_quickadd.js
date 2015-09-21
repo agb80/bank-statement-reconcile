@@ -2,7 +2,7 @@ openerp.account.quickadd = function (instance) {
     var _t = instance.web._t,
         _lt = instance.web._lt;
     var QWeb = instance.web.qweb;
-    
+
     instance.web.account = instance.web.account || {};
 
     instance.web.views.add('tree_account_move_line_quickadd', 'instance.web.account.QuickAddListView');
@@ -24,7 +24,7 @@ openerp.account.quickadd = function (instance) {
             var self = this;
             var defs = [];
             this.$el.parent().prepend(QWeb.render("AccountMoveLineQuickAdd", {widget: this}));
-            
+
             this.$el.parent().find('.oe_account_select_journal').change(function() {
                     self.current_journal = this.value === '' ? null : parseInt(this.value);
                     self.do_search(self.last_domain, self.last_context, self.last_group_by);
@@ -52,6 +52,8 @@ openerp.account.quickadd = function (instance) {
             defs.push(mod.call("list_periods", []).then(function(result) {
                 self.periods = result;
             }));
+            console.log("tmp",tmp);
+            console.log("defs",defs);
             return $.when(tmp, defs);
         },
         do_search: function(domain, context, group_by) {
@@ -78,7 +80,7 @@ openerp.account.quickadd = function (instance) {
             for (var i = 0;i < self.periods.length;i++){
                 o = new Option(self.periods[i][1], self.periods[i][0]);
                 self.$el.parent().find('.oe_account_select_period').append(o);
-            }    
+            }
             self.$el.parent().find('.oe_account_select_period').val(self.current_period).attr('selected',true);
             return self.search_by_journal_period();
         },

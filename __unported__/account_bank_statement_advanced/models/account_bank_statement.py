@@ -299,14 +299,17 @@ class AccountBankStatement(orm.Model):
         return function
 
     def number_of_lines_reconciled(self, cr, uid, ids, context=None):
+        print "=>ids",ids
+        print "=>number_of_lines_reconciled"
         bsl_obj = self.pool.get('account.bank.statement.line')
-        ids = bsl_obj.search_count(
+        line_ids = bsl_obj.search_count(
             cr, uid,
             [('statement_id', 'in', ids),
              ('journal_entry_id', '!=', False)],
             context=context
         )
-        return ids
+        print "=>line_ids", line_ids
+        return line_ids
 
     def button_confirm_bank(self, cr, uid, ids, context=None):
         if context is None:
@@ -453,25 +456,36 @@ class account_bank_statement_line(orm.Model):
             account_move_obj.button_cancel(cr, uid, move_ids, context=context)
             account_move_obj.unlink(cr, uid, move_ids, context)
 
-    def get_data_for_reconciliations(self, cr, uid, ids, excluded_ids=None, search_reconciliation_proposition=True, context=None):
-        """ Returns the data required to display a reconciliation, for each statement line id in ids """
+    def get_data_for_reconciliations(self, cr, uid, ids, excluded_ids=None,
+        search_reconciliation_proposition=True, context=None):
+        """
+            Returns the data required to display a reconciliation,
+            for each statement line id in ids
+        """
+        print "=>GET_DATA_FOR_RECONCILIATIONS"
         ret = []
         if excluded_ids is None:
             excluded_ids = []
 
         for st_line in self.browse(cr, uid, ids, context=context):
+            print "=>ST_LINE", st_line
             reconciliation_data = {}
             if search_reconciliation_proposition:
-                reconciliation_proposition = self.get_reconciliation_proposition(cr, uid, st_line, excluded_ids=excluded_ids, context=context)
+                reconciliation_proposition = self.get_reconciliation_proposition(
+                    cr, uid, st_line, excluded_ids=excluded_ids, context=context
+                )
+                print "=>RECONCILIATION_PROPOSITION", reconciliation_proposition
                 for mv_line in reconciliation_proposition:
                     excluded_ids.append(mv_line['id'])
                 reconciliation_data['reconciliation_proposition'] = reconciliation_proposition
             else:
                 reconciliation_data['reconciliation_proposition'] = []
             st_line = self.get_statement_line_for_reconciliation(cr, uid, st_line, context=context)
+            print "=>LINEAS A CONCILIAR", st_line
             reconciliation_data['st_line'] = st_line
             ret.append(reconciliation_data)
 
+        print "=>ret", ret
         return ret
 
     def get_statement_line_for_reconciliation(self, cr, uid, st_line, context=None):

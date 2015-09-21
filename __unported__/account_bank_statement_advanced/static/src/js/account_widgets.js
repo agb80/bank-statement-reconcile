@@ -34,7 +34,6 @@ openerp.account = function (instance) {
             this.model_bank_statement_line = new instance.web.Model("account.bank.statement.line");
             this.reconciliation_menu_id = false; // Used to update the needaction badge
             this.formatCurrency; // Method that formats the currency ; loaded from the server
-            console.log("this", this);
 
             // Only for statistical purposes
             this.lines_reconciled_with_ctrl_enter = 0;
@@ -133,16 +132,12 @@ openerp.account = function (instance) {
             this._super();
             var self = this;
             // Retreive statement infos and reconciliation data from the model
-            var lines_filter = [['journal_entry_id', '=', false], ['account_id', '=', false]];
-            console.log("lines_filter 1", lines_filter);
+            var lines_filter = [['journal_entry_id', '=', false]];
             var deferred_promises = [];
 
             // Working on specified statement(s)
             if (self.statement_ids && self.statement_ids.length > 0) {
                 lines_filter.push(['statement_id', 'in', self.statement_ids]);
-                console.log("lines_filter 2", lines_filter);
-
-                console.log("self.single_statement 1", self.single_statement);
                 // If only one statement, display its name as title and allow to modify it
                 if (self.single_statement) {
                     deferred_promises.push(self.model_bank_statement
@@ -150,6 +145,7 @@ openerp.account = function (instance) {
                         .filter([['id', '=', self.statement_ids[0]]])
                         .first()
                         .then(function(title){
+                            console.log("title",title);
                             self.title = title.name;
                         })
                     );
@@ -158,6 +154,7 @@ openerp.account = function (instance) {
                 deferred_promises.push(self.model_bank_statement
                     .call("number_of_lines_reconciled", [self.statement_ids])
                     .then(function(num) {
+                        console.log("num",num)
                         self.already_reconciled_lines = num;
                     })
                 );
@@ -168,6 +165,7 @@ openerp.account = function (instance) {
                 .query(['id','name','account_id','label','amount_type','amount','tax_id','analytic_account_id'])
                 .all().then(function (data) {
                     _(data).each(function(preset){
+                        console.log("preset",preset);
                         self.presets[preset.id] = preset;
                     });
                 })
@@ -186,7 +184,10 @@ openerp.account = function (instance) {
                 .query(['id'])
                 .filter(lines_filter)
                 .all().then(function (data) {
+                    console.log("Bank statement line");
+                    console.log("data",data);
                     self.st_lines = _(data).map(function(o){ return o.id });
+                    console.log("st_lines", self.st_lines);
                 })
             );
 
@@ -240,6 +241,9 @@ openerp.account = function (instance) {
                 return self.model_bank_statement_line
                     .call("get_data_for_reconciliations", [reconciliations_to_show], {context:self.session.user_context})
                     .then(function (data) {
+                        console.log("========================================");
+                        console.log("get_data_for_reconciliations");
+                        console.log("data",data);
                         var child_promises = [];
                         while ((datum = data.shift()) !== undefined)
                             child_promises.push(self.displayReconciliation(datum.st_line.id, 'inactive', false, true, datum.st_line, datum.reconciliation_proposition));
