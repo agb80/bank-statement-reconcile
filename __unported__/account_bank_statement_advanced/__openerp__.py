@@ -42,14 +42,12 @@
         'wizard/bank_statement_balance_print.xml',
         'report/reports.xml',
         ],
-        'js': [
-            'static/src/js/account_widgets.js',
-            'static/src/js/account_move_reconciliation.js',
-            'static/src/js/account_move_line_quickadd.js',
-            # 'static/src/js/account_tour_bank_statement_reconciliation.js',
-        ],
-        'qweb':[
-            'static/src/xml/account_bank_statement_reconciliation.xml'
-        ],
-
+    'js': [
+        'static/src/js/account_widgets.js',
+        'static/src/js/account_move_reconciliation.js',
+        'static/src/js/account_move_line_quickadd.js',
+    ],
+    'qweb': [
+        'static/src/xml/account_bank_statement_reconciliation.xml'
+    ],
 }
