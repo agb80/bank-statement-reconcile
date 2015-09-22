@@ -1003,6 +1003,7 @@ openerp.account = function (instance) {
         bindPopoverTo: function(el) {
             var self = this;
             $(el).addClass("bootstrap_popover");
+            //debugger;
             el.popover({
                 'placement': 'left',
                 'container': self.el,

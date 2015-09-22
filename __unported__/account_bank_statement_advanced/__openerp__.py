@@ -43,6 +43,8 @@
         'report/reports.xml',
         ],
     'js': [
+        'static/src/js/bootstrap-popover.js',
+        'static/src/js/format.js',
         'static/src/js/account_widgets.js',
         'static/src/js/account_move_reconciliation.js',
         'static/src/js/account_move_line_quickadd.js',
