@@ -26,6 +26,9 @@ instance.web.format_value = function (value, descriptor, value_if_empty) {
             return value_if_empty === undefined ?  '' : value_if_empty;
     }
     var l10n = _t.database.parameters;
+    console.log("l10n", l10n);
+    l10n.decimal_point = "."
+    console.log("l10n", l10n);
     switch (descriptor.widget || descriptor.type || (descriptor.field && descriptor.field.type)) {
         case 'id':
             return value.toString();
