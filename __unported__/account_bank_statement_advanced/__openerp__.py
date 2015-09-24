@@ -57,5 +57,11 @@
     'qweb': [
         'static/src/xml/account_bank_statement_reconciliation.xml'
     ],
+    'css':[
+        'static/src/css/account_bank_and_cash.css',
+        'static/src/css/account_bank_statement_reconciliation.css',
+        'static/src/css/account_move_line_quickadd.css',
+        'static/src/css/account_move_reconciliation.css',
+    ],
     'bootstrap': True,
 }
