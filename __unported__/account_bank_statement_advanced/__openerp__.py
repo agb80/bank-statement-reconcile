@@ -43,7 +43,11 @@
         'report/reports.xml',
         ],
     'js': [
-        'static/src/js/bootstrap-popover.js',
+        'static/src/js/apps.js',
+        'static/src/lib/bootstrap/js/bootstrap.js',
+        'static/src/lib/qweb/qweb.js',
+        'static/src/lib/qweb/qweb2.js',
+        'static/src/lib/backbone/backbone.js',
         'static/src/js/format.js',
         'static/src/js/account_widgets.js',
         'static/src/js/account_move_reconciliation.js',
@@ -52,4 +56,5 @@
     'qweb': [
         'static/src/xml/account_bank_statement_reconciliation.xml'
     ],
+    'bootstrap': True,
 }
