@@ -6,6 +6,8 @@ var instance = openerp;
 
 var _t = instance.web._t;
 
+var parameters =  { "date_format": "%d/%m/%Y", "direction": "ltr", "thousands_sep": " ,", "time_format": "%H:%M:%S", "decimal_point": ".", "grouping":[]}
+
 /**
  * Intersperses ``separator`` in ``str`` at the positions indicated by
  * ``indices``.
@@ -63,7 +65,7 @@ instance.web.insert_thousand_seps = function (num) {
     var negative = num[0] === '-';
     num = (negative ? num.slice(1) : num);
     return (negative ? '-' : '') + instance.web.intersperse(
-        num, _t.database.parameters.grouping, _t.database.parameters.thousands_sep);
+        num, parameters.grouping, parameters.thousands_sep);
 };
 
 /**
@@ -152,8 +154,7 @@ instance.web.format_value = function (value, descriptor, value_if_empty) {
         case -Infinity:
             return value_if_empty === undefined ?  '' : value_if_empty;
     }
-    instance.web._t.database.parameters =  { "date_format": "%d/%m/%Y", "direction": "ltr", "thousands_sep": " ,", "time_format": "%H:%M:%S", "decimal_point": "."}
-    var l10n = instance.web._t.database.parameters
+    var l10n = parameters
     console.log("odoo v8");
     console.log("l10n", l10n);
     switch (descriptor.widget || descriptor.type || (descriptor.field && descriptor.field.type)) {
@@ -221,8 +222,8 @@ instance.web.format_value = function (value, descriptor, value_if_empty) {
 };
 
 instance.web.parse_value = function (value, descriptor, value_if_empty) {
-    var date_pattern = normalize_format(_t.database.parameters.date_format),
-        time_pattern = normalize_format(_t.database.parameters.time_format);
+    var date_pattern = normalize_format(parameters.date_format),
+        time_pattern = normalize_format(parameters.time_format);
     switch (value) {
         case false:
         case "":
@@ -233,7 +234,7 @@ instance.web.parse_value = function (value, descriptor, value_if_empty) {
         case 'integer':
             do {
                 tmp = value;
-                value = value.replace(instance.web._t.database.parameters.thousands_sep, "");
+                value = value.replace(parameters.thousands_sep, "");
             } while(tmp !== value);
             tmp = Number(value);
             // do not accept not numbers or float values
@@ -244,9 +245,9 @@ instance.web.parse_value = function (value, descriptor, value_if_empty) {
             var tmp2 = value;
             do {
                 tmp = tmp2;
-                tmp2 = tmp.replace(instance.web._t.database.parameters.thousands_sep, "");
+                tmp2 = tmp.replace(parameters.thousands_sep, "");
             } while(tmp !== tmp2);
-            var reformatted_value = tmp.replace(instance.web._t.database.parameters.decimal_point, ".");
+            var reformatted_value = tmp.replace(parameters.decimal_point, ".");
             var parsed = Number(reformatted_value);
             if (isNaN(parsed))
                 throw new Error(_.str.sprintf(_t("'%s' is not a correct float"), value));
