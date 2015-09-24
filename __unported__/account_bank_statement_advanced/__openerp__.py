@@ -52,6 +52,7 @@
         'static/src/js/account_widgets.js',
         'static/src/js/account_move_reconciliation.js',
         'static/src/js/account_move_line_quickadd.js',
+        # 'static/src/js/openerpframework.js',
     ],
     'qweb': [
         'static/src/xml/account_bank_statement_reconciliation.xml'
